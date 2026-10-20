@@ -5,7 +5,7 @@ A secure, responsive web application that helps small shops and warehouses track
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57)
-![License](https://img.shields.io/badge/License-MIT-green)
+
 
 ## Overview
 
