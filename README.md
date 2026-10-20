@@ -142,4 +142,4 @@ The app runs on any WSGI host. For a free option, deploy to PythonAnywhere:
 
 ## Author
 [GOWTHAM M]
-GitHub: [lwaran698@gmail.com](https://github.com/lwaran698)
+GitHub:https://github.com/Gowtham
