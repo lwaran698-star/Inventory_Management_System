@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --ink: #10302f;
+    --ink-2: #1a4543;
+    --saffron: #f0a202;
+    --mint: #2e9e6b;
+    --rose: #d64550;
+    --text: #1d2b2a;
+    --muted: #5d716e;
+    --line: rgba(16, 48, 47, 0.12);
+    --card: rgba(255, 255, 255, 0.74);
+    --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background: linear-gradient(160deg, #cfe0d8 0%, #e3e9ee 55%, #ecdfd2 100%) fixed;
+    min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+
+/* ---------- Layout ---------- */
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 248px;
+    background: linear-gradient(180deg, var(--ink) 0%, #0b2221 100%);
+    color: #dfece8;
+    display: flex;
+    flex-direction: column;
+    padding: 26px 16px;
+    z-index: 20;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 19px;
+    font-weight: 800;
+    padding: 0 10px 28px;
+}
+
+.brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--saffron);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+}
+
+.nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: #b9cfc9;
+    border-left: 3px solid transparent;
+}
+
+.nav a:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+
+.nav a.active {
+    background: rgba(240, 162, 2, 0.14);
+    color: #fff;
+    border-left-color: var(--saffron);
+}
+
+.nav .group { margin: 22px 12px 8px; font-size: 12.5px; color: #7f9c96; }
+
+.sidebar-foot { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.sidebar-foot .who { font-size: 13px; color: #9fb8b2; margin-bottom: 10px; }
+.sidebar-foot button { width: 100%; background: rgba(255, 255, 255, 0.1); color: #fff; }
+.sidebar-foot button:hover { background: rgba(214, 69, 80, 0.85); }
+
+.main { margin-left: 248px; padding: 32px 36px 48px; max-width: 1280px; }
+
+.topbar { display: none; }
+
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+.page-head h1 { font-size: 28px; font-weight: 800; }
+.page-head p { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; }
+
+/* ---------- Cards ---------- */
+.card {
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 28px rgba(16, 48, 47, 0.08);
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.card h2 { font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+
+.hero {
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
+    color: #dfece8;
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 12px 30px rgba(16, 48, 47, 0.25);
+}
+
+.hero .label { font-size: 14px; color: #9fc0b8; }
+.hero .value { font-size: 44px; font-weight: 800; color: var(--saffron); letter-spacing: -0.02em; line-height: 1.15; }
+.hero .meta { font-size: 13.5px; color: #9fc0b8; max-width: 260px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 22px; }
+
+.stat { background: var(--card); border: 1px solid rgba(255, 255, 255, 0.7); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 8px 28px rgba(16, 48, 47, 0.08); border-left: 5px solid var(--ink); }
+.stat .label { font-size: 13.5px; color: var(--muted); font-weight: 600; }
+.stat .num { font-size: 30px; font-weight: 800; margin-top: 4px; }
+.stat.good { border-left-color: var(--mint); }
+.stat.good .num { color: var(--mint); }
+.stat.bad { border-left-color: var(--rose); }
+.stat.bad .num { color: var(--rose); }
+
+.grid-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 22px; }
+.grid-2 .card { margin-bottom: 0; }
+.grid-2 + .card, .grid-2 + .grid-2 { margin-top: 22px; }
+
+.chart-box { position: relative; height: 290px; }
+
+/* ---------- Forms & buttons ---------- */
+label { font-size: 13.5px; font-weight: 700; display: block; margin-bottom: 6px; }
+
+input, select {
+    font-family: inherit;
+    font-size: 14.5px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text);
+    width: 100%;
+}
+
+input:focus, select:focus, button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--saffron);
+    outline-offset: 1px;
+}
+
+button, .btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9px;
+    background: var(--ink);
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    transition: background 0.15s;
+}
+
+button:hover, .btn:hover { background: var(--ink-2); }
+.btn-accent { background: var(--saffron); color: var(--ink); }
+.btn-accent:hover { background: #ffb520; }
+.btn-ghost { background: rgba(16, 48, 47, 0.08); color: var(--ink); }
+.btn-ghost:hover { background: rgba(16, 48, 47, 0.16); }
+.btn-danger { background: var(--rose); }
+.btn-danger:hover { background: #bd3540; }
+.btn-sm { padding: 6px 11px; font-size: 13px; }
+
+.form-grid { display: grid; grid-template-columns: 2fr 1.3fr 1fr 1fr auto; gap: 14px; align-items: end; }
+
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.toolbar input[type="text"] { width: 250px; }
+.toolbar select { width: 190px; }
+.toolbar .spacer { flex: 1; }
+.import-form { display: flex; gap: 8px; align-items: center; }
+.import-form input[type="file"] { width: 230px; font-size: 13px; padding: 7px; }
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+
+th {
+    text-align: left;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 700;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+}
+
+th a:hover { color: var(--ink); }
+th a.sorted { color: var(--ink); }
+
+td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr:hover { background: rgba(255, 255, 255, 0.55); }
+td.num, th.num { text-align: right; }
+.muted { color: var(--muted); font-size: 13px; }
+.empty { text-align: center; color: var(--muted); padding: 30px 12px; }
+
+.badge { display: inline-block; padding: 4px 11px; border-radius: 99px; font-size: 12.5px; font-weight: 700; }
+.badge.ok { background: rgba(46, 158, 107, 0.16); color: #1c7a4e; }
+.badge.low { background: rgba(240, 162, 2, 0.2); color: #8a5d00; }
+.badge.out { background: rgba(214, 69, 80, 0.16); color: #a82a35; }
+
+.plus { color: var(--mint); font-weight: 800; }
+.minus { color: var(--rose); font-weight: 800; }
+
+.row-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.row-actions form { display: inline-flex; gap: 4px; align-items: center; margin: 0; }
+.row-actions input[type="number"] { width: 62px; padding: 6px 8px; font-size: 13px; }
+
+/* ---------- Pagination ---------- */
+.pager { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+.pager a, .pager span { padding: 7px 12px; border-radius: 8px; font-size: 14px; font-weight: 700; background: rgba(16, 48, 47, 0.07); }
+.pager a:hover { background: rgba(16, 48, 47, 0.16); }
+.pager .current { background: var(--ink); color: #fff; }
+.pager .disabled { opacity: 0.4; }
+
+/* ---------- Flash ---------- */
+.flash { padding: 12px 16px; border-radius: 10px; margin-bottom: 18px; font-weight: 700; font-size: 14.5px; }
+.flash-success { background: rgba(46, 158, 107, 0.16); color: #17673f; border: 1px solid rgba(46, 158, 107, 0.4); }
+.flash-error { background: rgba(214, 69, 80, 0.14); color: #98262f; border: 1px solid rgba(214, 69, 80, 0.4); }
+
+/* ---------- Login ---------- */
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #0b2221 0%, #10302f 45%, #2b5d52 100%) fixed;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 18px;
+    padding: 34px 32px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login-card .brand { color: var(--ink); padding: 0 0 6px; }
+.login-card p { color: var(--muted); margin: 0 0 22px; font-size: 14.5px; }
+.login-card .field { margin-bottom: 16px; }
+.login-card button { width: 100%; padding: 12px; font-size: 15px; }
+
+/* ---------- Edit page ---------- */
+.narrow { max-width: 620px; }
+.narrow .field { margin-bottom: 16px; }
+.narrow .actions { display: flex; gap: 10px; margin-top: 6px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+    .sidebar { transform: translateX(-100%); transition: transform 0.2s; }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 18px 16px 40px; }
+    .topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--ink); color: #fff; margin: -18px -16px 18px; padding: 12px 16px;
+        font-weight: 800;
+    }
+    .topbar button { background: rgba(255, 255, 255, 0.14); padding: 7px 12px; }
+    .stats, .grid-2, .form-grid { grid-template-columns: 1fr; }
+    .grid-2 .card { margin-bottom: 22px; }
+    .hero .value { font-size: 34px; }
+    .toolbar input[type="text"], .toolbar select { width: 100%; }
+}
+
+/* ---------- Single page additions ---------- */
+html { scroll-behavior: smooth; }
+.section { scroll-margin-top: 20px; }
+
+.toasts { position: fixed; top: 18px; right: 18px; z-index: 50; width: min(380px, calc(100vw - 36px)); }
+.toasts .flash { box-shadow: 0 10px 28px rgba(16, 48, 47, 0.22); background-color: #fff; transition: opacity 0.4s; }
+.toasts .flash-success { background-color: #e3f4ec; }
+.toasts .flash-error { background-color: #fbe6e8; }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand"><span class="brand-mark">📦</span> StockPilot</div>
+
+        <nav class="nav">
+            <a href="#dashboard">📊 Dashboard</a>
+            <a href="#add">➕ Add product</a>
+            <a href="#products">🛒 Products</a>
+            <a href="#history">🕘 Stock history</a>
+
+            <div class="group">Reports</div>
+            <a href="{{ url_for('report_pdf') }}">📄 PDF report</a>
+            <a href="{{ url_for('export_csv') }}">⬇️ Export CSV</a>
+
+            <div class="group">Settings</div>
+            <a href="{{ url_for('account') }}">⚙️ Account</a>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="who">Signed in as <strong>{{ session.get('user') }}</strong></div>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit">Log out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <span>📦 StockPilot</span>
+            <button type="button" onclick="document.getElementById('sidebar').classList.toggle('open')">Menu</button>
+        </div>
+
+        <!-- Flash messages -->
+        <div class="toasts">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+        </div>
+
+        {% macro pager(param, page, pages, anchor) %}
+        {% if pages > 1 %}
+        <div class="pager">
+            {% if page > 1 %}<a href="{{ page_url(param, page - 1, anchor) }}">Previous</a>{% else %}<span class="disabled">Previous</span>{% endif %}
+            {% for p in range([page - 2, 1]|max, [page + 2, pages]|min + 1) %}
+                {% if p == page %}<span class="current">{{ p }}</span>{% else %}<a href="{{ page_url(param, p, anchor) }}">{{ p }}</a>{% endif %}
+            {% endfor %}
+            {% if page < pages %}<a href="{{ page_url(param, page + 1, anchor) }}">Next</a>{% else %}<span class="disabled">Next</span>{% endif %}
+        </div>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro th(col, label, extra='') %}
+            <th class="{{ extra }}">
+                <a href="{{ sort_url(col) }}" class="{{ 'sorted' if sort == col }}">{{ label }}{% if sort == col %} {{ '▲' if order == 'asc' else '▼' }}{% endif %}</a>
+            </th>
+        {% endmacro %}
+
+        <!-- ================= Dashboard ================= -->
+        <section id="dashboard" class="section">
+            <div class="page-head">
+                <div>
+                    <h1>Inventory Management System</h1>
+                    <p>Manage your products and stock easily.</p>
+                </div>
+                <a href="#add" class="btn btn-accent">Add a product</a>
+            </div>
+
+            <div class="hero">
+                <div>
+                    <div class="label">Total inventory value</div>
+                    <div class="value">₹{{ stats.total_value|inr }}</div>
+                </div>
+                <div class="meta">Price × quantity across all {{ stats.total_products }} products currently in your shop.</div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="label">Total products</div>
+                    <div class="num">{{ stats.total_products }}</div>
+                </div>
+                <div class="stat good">
+                    <div class="label">Total available stock</div>
+                    <div class="num">{{ stats.total_stock }}</div>
+                </div>
+                <div class="stat bad">
+                    <div class="label">Total low stock products</div>
+                    <div class="num">{{ stats.low_stock }}</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h2>Stock overview chart</h2>
+                    <div class="chart-box">
+                        <canvas id="stockChart"
+                            data-labels='{{ category_stock | map(attribute="category") | list | tojson }}'
+                            data-values='{{ category_stock | map(attribute="total_stock") | list | tojson }}'></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Stock health</h2>
+                    <div class="chart-box">
+                        <canvas id="healthChart"
+                            data-healthy="{{ stats.total_products - stats.low_stock }}"
+                            data-low="{{ stats.low_stock }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h2>Category-wise stock</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Category</th><th class="num">Total stock</th><th class="num">Low stock products</th></tr></thead>
+                            <tbody>
+                            {% for item in category_stock %}
+                                <tr>
+                                    <td>{{ item['category'] }}</td>
+                                    <td class="num">{{ item['total_stock'] }}</td>
+                                    <td class="num">{% if item['low_stock_products'] > 0 %}⚠️ {{ item['low_stock_products'] }}{% else %}0{% endif %}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="empty">No product available.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Needs restocking</h2>
+                    {% if low_products %}
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Product</th><th class="num">Left</th></tr></thead>
+                            <tbody>
+                            {% for p in low_products %}
+                                <tr>
+                                    <td>{{ p['name'] }}<div class="muted">{{ p['category'] }}</div></td>
+                                    <td class="num"><span class="badge {{ 'out' if p['quantity'] == 0 else 'low' }}">{{ p['quantity'] }}</span></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="empty">Every product has at least {{ low_limit }} units. Nothing to restock.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Add Product ================= -->
+        <section id="add" class="section card" style="margin-top: 22px;">
+            <h2>Add product</h2>
+            <form action="{{ url_for('add_product') }}" method="POST" class="form-grid">
+                <div>
+                    <label for="name">Product name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter product name" required>
+                </div>
+                <div>
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select category</option>
+                        {% for c in categories %}<option>{{ c }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="price">Price (₹)</label>
+                    <input type="number" id="price" name="price" min="0.01" step="0.01" placeholder="0.00" required>
+                </div>
+                <div>
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" min="0" step="1" placeholder="0" required>
+                </div>
+                <button type="submit" class="btn-accent">Add product</button>
+            </form>
+        </section>
+
+        <!-- ================= Product List ================= -->
+        <section id="products" class="section card">
+            <h2>Product list <span class="muted">({{ total }} found)</span></h2>
+
+            <form method="GET" action="{{ url_for('home', _anchor='products') }}" class="toolbar">
+                <input type="text" name="q" value="{{ q }}" placeholder="Search product name...">
+                <select name="category">
+                    <option value="">All categories</option>
+                    {% for c in categories %}
+                        <option value="{{ c }}" {{ 'selected' if c == selected_category }}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="sort" value="{{ sort }}">
+                <input type="hidden" name="order" value="{{ order }}">
+                <button type="submit">Search</button>
+                {% if q or selected_category %}<a href="{{ url_for('home', _anchor='products') }}" class="btn btn-ghost">Clear</a>{% endif %}
+
+                <span class="spacer"></span>
+                <a href="{{ url_for('export_csv') }}" class="btn btn-ghost">Export CSV</a>
+                <a href="{{ url_for('report_pdf') }}" class="btn btn-ghost">PDF report</a>
+            </form>
+
+            <form action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data" class="toolbar import-form">
+                <input type="file" name="csv_file" accept=".csv" required>
+                <button type="submit" class="btn-ghost">Import CSV</button>
+                <span class="muted">Needs Product Name, Price, Quantity columns. Duplicates are skipped.</span>
+            </form>
+
+            <div class="table-wrap">
+                <table id="productTable">
+                    <thead>
+                        <tr>
+                            {{ th('name', 'Product') }}
+                            {{ th('category', 'Category') }}
+                            {{ th('price', 'Price (₹)', 'num') }}
+                            {{ th('quantity', 'Quantity', 'num') }}
+                            <th>Stock status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in products %}
+                        <tr>
+                            <td><strong>{{ p['name'] }}</strong><div class="muted">Added {{ (p['created_at'] or '')[:10] }}</div></td>
+                            <td>{{ p['category'] }}</td>
+                            <td class="num">{{ p['price']|inr }}</td>
+                            <td class="num">{{ p['quantity'] }}</td>
+                            <td>
+                                {% if p['quantity'] == 0 %}<span class="badge out">Out of stock</span>
+                                {% elif p['quantity'] < low_limit %}<span class="badge low">Low stock</span>
+                                {% else %}<span class="badge ok">In stock</span>{% endif %}
+                            </td>
+                            <td>
+                                <div class="row-actions">
+                                    <form action="{{ url_for('adjust_stock', product_id=p['id']) }}" method="POST">
+                                        <input type="number" name="amount" min="1" value="1" aria-label="Quantity to add or remove">
+                                        <button type="submit" name="action" value="in" class="btn-sm" title="Stock in">+ In</button>
+                                        <button type="submit" name="action" value="out" class="btn-sm btn-ghost" title="Stock out">− Out</button>
+                                    </form>
+                                    <a href="{{ url_for('edit_product', product_id=p['id']) }}" class="btn btn-sm btn-ghost">Edit</a>
+                                    <form action="{{ url_for('delete_product', product_id=p['id']) }}" method="POST"
+                                          onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        <button type="submit" class="btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="empty">No products match. Add a product above or clear your search.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {{ pager('page', page, pages, 'products') }}
+        </section>
+
+        <!-- ================= Stock History ================= -->
+        <section id="history" class="section card">
+            <h2>Stock history <span class="muted">({{ h_total }} records, newest first)</span></h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Date and time</th><th>Product</th><th>Reason</th><th class="num">Change</th><th class="num">Before</th><th class="num">After</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for h in history_rows %}
+                        <tr>
+                            <td class="muted">{{ h['created_at'] }}</td>
+                            <td><strong>{{ h['product_name'] }}</strong></td>
+                            <td>{{ h['reason'] }}</td>
+                            <td class="num {{ 'plus' if h['change'] > 0 else 'minus' if h['change'] < 0 }}">{{ '+' if h['change'] > 0 }}{{ h['change'] }}</td>
+                            <td class="num">{{ h['old_qty'] }}</td>
+                            <td class="num">{{ h['new_qty'] }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="empty">No stock changes yet. Add a product or use Stock In / Out to start the log.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {{ pager('hpage', h_page, h_pages, 'history') }}
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Flash messages 5 seconds-la maraiyum
+        document.querySelectorAll(".toasts .flash").forEach(function (el) {
+            setTimeout(function () { el.style.opacity = "0"; }, 5000);
+            setTimeout(function () { el.remove(); }, 5500);
+        });
+
+        // Sidebar link click panna mobile-la menu close aagum
+        document.querySelectorAll("#sidebar a").forEach(function (a) {
+            a.addEventListener("click", function () {
+                document.getElementById("sidebar").classList.remove("open");
+            });
+        });
+
+        const palette = ["#10302f", "#f0a202", "#2e9e6b", "#d64550", "#5b7fa6", "#8a6fb3", "#c98a5a", "#7aa89b"];
+
+        // Stock Overview Chart
+        const barCanvas = document.getElementById("stockChart");
+        if (barCanvas && typeof Chart !== "undefined") {
+            new Chart(barCanvas, {
+                type: "bar",
+                data: {
+                    labels: JSON.parse(barCanvas.dataset.labels),
+                    datasets: [{
+                        label: "Total stock",
+                        data: JSON.parse(barCanvas.dataset.values),
+                        backgroundColor: palette,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        }
+
+        // Stock Health Chart
+        const healthCanvas = document.getElementById("healthChart");
+        if (healthCanvas && typeof Chart !== "undefined") {
+            const healthy = Number(healthCanvas.dataset.healthy);
+            const low = Number(healthCanvas.dataset.low);
+            const hasData = (healthy + low) > 0;
+            new Chart(healthCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: ["In stock", "Low stock"],
+                    datasets: [{
+                        data: hasData ? [healthy, low] : [1, 0],
+                        backgroundColor: hasData ? ["#2e9e6b", "#d64550"] : ["#cfdad6", "#cfdad6"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "65%",
+                    plugins: { legend: { position: "bottom" } }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
