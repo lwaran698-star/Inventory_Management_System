@@ -5,7 +5,7 @@ A secure, responsive web application that helps small shops and warehouses track
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57)
-
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Overview
 
@@ -49,6 +49,12 @@ Small businesses often track stock in notebooks or spreadsheets, which leads to 
 | PDF reports | ReportLab |
 | Security | Werkzeug password hashing |
 | Deployment | Gunicorn, PythonAnywhere |
+
+## Screenshots
+
+| Dashboard | Login |
+|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Login](screenshots/login.png) |
 
 ## Getting Started
 
@@ -135,6 +141,5 @@ The app runs on any WSGI host. For a free option, deploy to PythonAnywhere:
 - REST API
 
 ## Author
-
 [GOWTHAM M]
-GitHub:(https://github.com/lwaran698@gmail.com)
+GitHub: [lwaran698@gmail.com](https://github.com/lwaran698)
